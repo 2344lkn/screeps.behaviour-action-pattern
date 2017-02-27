@@ -39,6 +39,7 @@ action.newTarget = function(creep){
         return flag; // other room
     }
     if( !flag ){
+   
         // unregister
         creep.action = null;
         delete creep.data.actionName;
@@ -59,7 +60,6 @@ action.newTarget = function(creep){
         });
         if( target )
             return target;
-
         // attack tower
        target = creep.pos.findClosestByPath(FIND_HOSTILE_STRUCTURES, {
             filter: (structure) => {
