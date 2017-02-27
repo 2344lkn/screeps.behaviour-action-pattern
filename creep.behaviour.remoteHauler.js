@@ -30,9 +30,8 @@ mod.nextAction = function(creep){
             // Choose the closest
             if( deposit.length > 0 ){
                 let target = creep.pos.findClosestByRange(deposit);
-                if( target.structureType == STRUCTURE_STORAGE && this.assign(creep, Creep.action.storing, target) ) return;
+                if( target.structureType == STRUCTURE_STORAGE && this.assign(creep, Creep.action.storing) ) return;
                 else if( this.assign(creep, Creep.action.charging, target) ) return;
-                else if( this.assign(creep, Creep.action.storing) ) return; // prefer storage
             }
             if( this.assign(creep, Creep.action.charging) ) return;
             // no deposit :/ 
@@ -62,7 +61,7 @@ mod.nextAction = function(creep){
         if ( creep.sum === 0 ) {
             let source = creep.pos.findClosestByRange(creep.room.sources);
             if (creep.room && source && creep.pos.getRangeTo(source) > 3) {
-                creep.data.travelRange = 3;
+                creep.moveTo(source);
                 return Creep.action.travelling.assign(creep, source);
             }
         }
@@ -91,9 +90,8 @@ mod.assign = function(creep, action, target){
     return (action.isValidAction(creep) && action.isAddableAction(creep) && action.assign(creep, target));
 };
 mod.gotoTargetRoom = function(creep){
-    const targetFlag = creep.data.destiny ? Game.flags[creep.data.destiny.targetName] : null;
-    if (targetFlag) return Creep.action.travelling.assignRoom(creep, targetFlag.pos.roomName);
+    return Creep.action.travelling.assign(creep, Game.flags[creep.data.destiny.targetName]);
 };
 mod.goHome = function(creep){
-    return Creep.action.travelling.assignRoom(creep, creep.data.homeRoom);
+    return Creep.action.travelling.assign(creep, Game.rooms[creep.data.homeRoom].controller);
 };
