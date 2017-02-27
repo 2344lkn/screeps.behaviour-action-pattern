@@ -224,7 +224,6 @@ global.install = () => {
     if( global.mainInjection.extend ) global.mainInjection.extend();
 };
 global.install();
-require('traveler')({exportTraveler: false, installTraveler: false, installPrototype: true, defaultStuckValue: TRAVELER_STUCK_TICKS, reportThreshold: TRAVELER_THRESHOLD});
 
 let cpuAtFirstLoop;
 module.exports.loop = function () {
@@ -262,11 +261,8 @@ module.exports.loop = function () {
     // custom flush
     if( global.mainInjection.flush ) global.mainInjection.flush();
 
-    // analyze environment, wait a tick if critical failure
-    if (!FlagDir.analyze()) {
-        logError('FlagDir.analyze failed, waiting one tick to sync flags');
-        return;
-    }
+    // analyze environment
+    FlagDir.analyze();
     Room.analyze();
     Population.analyze();
     // custom analyze

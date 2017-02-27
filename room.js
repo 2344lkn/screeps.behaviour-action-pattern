@@ -950,40 +950,36 @@ mod.extend = function(){
             return find.apply(this, arguments);
     };
 
-    Room.routeCallback = function(targetRoomName, checkOwner, preferHighway) {
-        return function(roomName) {
-            if( roomName !== targetRoomName && ROUTE_ROOM_COST[roomName]) {
-                return ROUTE_ROOM_COST[roomName];
-            }
-            let isHighway = false;
-            if( preferHighway ){
-                let parsed = /^[WE]([0-9]+)[NS]([0-9]+)$/.exec(roomName);
-                isHighway = (parsed[1] % 10 === 0) || (parsed[2] % 10 === 0);
-            }
-            let isMyOrNeutralRoom = false;
-            if( checkOwner ){
-                let room = Game.rooms[roomName];
-                isMyOrNeutralRoom = room &&
-                    room.controller &&
-                    (room.controller.my ||
-                    (room.controller.owner === undefined));
-            }
-
-            if (isMyOrNeutralRoom || roomName == targetRoomName)
-                return 1;
-            else if (isHighway)
-                return 3;
-            else if( Game.map.isRoomAvailable(roomName))
-                return (checkOwner || preferHighway) ? 11 : 1;
-            return Infinity;
-        };
-    };
-
     Room.prototype.findRoute = function(targetRoomName, checkOwner = true, preferHighway = true){
         if (this.name == targetRoomName)  return [];
 
         return Game.map.findRoute(this, targetRoomName, {
-            routeCallback: Room.routeCallback(targetRoomName, checkOwner, preferHighway)
+            routeCallback(roomName) {
+                if( roomName !== targetRoomName && ROUTE_ROOM_COST[roomName]) {
+                    return ROUTE_ROOM_COST[roomName];
+                }
+                let isHighway = false;
+                if( preferHighway ){
+                    let parsed = /^[WE]([0-9]+)[NS]([0-9]+)$/.exec(roomName);
+                    isHighway = (parsed[1] % 10 === 0) || (parsed[2] % 10 === 0);
+                }
+                let isMyOrNeutralRoom = false;
+                if( checkOwner ){
+                    let room = Game.rooms[roomName];
+                    isMyOrNeutralRoom = room &&
+                        room.controller &&
+                        (room.controller.my ||
+                        (room.controller.owner === undefined));
+                }
+
+                if (isMyOrNeutralRoom || roomName == targetRoomName)
+                    return 1;
+                else if (isHighway)
+                    return 3;
+                else if( Game.map.isRoomAvailable(roomName))
+                    return (checkOwner || preferHighway) ? 11 : 1;
+                return Infinity;
+            }
         });
     };
 
@@ -1581,19 +1577,6 @@ mod.extend = function(){
             }
         }
     };
-    Room.prototype.processPower = function() {
-        // run lab reactions WOO!
-        let powerSpawns = this.find(FIND_MY_STRUCTURES, { filter: (s) => { return s.structureType == STRUCTURE_POWER_SPAWN; } } );
-        if (!this.memory.resources) return;
-        for (var i=0;i<powerSpawns.length;i++) {
-            // see if the reaction is possible
-            let powerSpawn = powerSpawns[i];
-            if (powerSpawn.energy > 0 && powerSpawn.power > POWER_SPAWN_ENERGY_RATIO) {
-                if (DEBUG && TRACE) trace('Room', { roomName: this.name, actionName: 'processPower' });
-                powerSpawn.processPower();
-            }
-        }
-    };
     Room.prototype.findContainerWith = function(resourceType, amountMin) {
         if (!amountMin) amountMin = 1;
         //if (!RESOURCES_ALL.find((r)=>{r==resourceType;})) return null;
@@ -1994,7 +1977,6 @@ mod.analyze = function(){
             room.linkDispatcher();
             room.processInvaders();
             room.processLabs();
-            room.processPower();
         }
         catch(err) {
             Game.notify('Error in room.js (Room.prototype.loop) for "' + room.name + '" : ' + err.stack ? err + '<br/>' + err.stack : err);

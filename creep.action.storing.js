@@ -25,10 +25,9 @@ action.isValidAction = function(creep){
 action.isValidTarget = function(target){
     return ((target != null) && (target.store != null) && target.sum < target.storeCapacity);
 };
-action.isAddableTarget = function(target, creep){
+action.isAddableTarget = function(target){
     return ( target.my &&
-        (!target.targetOf || target.targetOf.length < this.maxPerTarget) && 
-        target.sum + creep.carry[RESOURCE_ENERGY] < target.storeCapacity);
+        (!target.targetOf || target.targetOf.length < this.maxPerTarget));
 };
 action.isValidMineralToTerminal = function(room){
     return ( room.storage.store[room.mineralType] &&

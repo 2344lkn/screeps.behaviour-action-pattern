@@ -18,11 +18,9 @@ mod.run = function(creep) {
         logError('Creep without action/activity!\nCreep: ' + creep.name + '\ndata: ' + JSON.stringify(creep.data));
     }
     if( creep.hits < creep.hitsMax ) { // creep injured. move to next owned room
-        if (!creep.data.nearestHome || !Game.rooms[creep.data.nearestHome]) creep.data.nearestHome = Room.bestSpawnRoomFor(creep.pos.roomName);
-        if (creep.data.nearestHome) {
-            Creep.action.travelling.assignRoom(creep, creep.data.homeRoom);
-            return;
-        }
+        let nextHome = Room.bestSpawnRoomFor(creep.pos.roomName);
+        if( nextHome )
+            creep.drive( nextHome.controller.pos, 3, 5);
     }
 };
 mod.nextAction = function(creep){
@@ -117,7 +115,7 @@ mod.nextAction = function(creep){
                         return;
                 }
                 Population.registerCreepFlag(creep, null);
-                Creep.action.travelling.assignRoom(creep, creep.data.homeRoom);
+                Creep.action.travelling.assign(creep, Game.rooms[creep.data.homeRoom].controller);
                 return;
             }
         }
@@ -141,7 +139,7 @@ mod.exploitNextRoom = function(creep){
         // new flag found
         if( flag ) {
             // travelling
-            if( Creep.action.travelling.assignRoom(creep, flag.pos.roomName) ) {
+            if( Creep.action.travelling.assign(creep, flag) ) {
                 Population.registerCreepFlag(creep, flag);
                 return true;
             }
@@ -151,26 +149,8 @@ mod.exploitNextRoom = function(creep){
     // go home
     Population.registerCreepFlag(creep, null);
     if (creep.room.name !== creep.data.homeRoom) {
-        Creep.action.travelling.assignRoom(creep, creep.data.homeRoom);
+        creep.data.travelRoom = creep.data.homeRoom;
+        Creep.action.travelling.assign(creep, creep);
     }
     return false;
-};
-mod.strategies = {
-    defaultStrategy: {
-        name: `default-${mod.name}`,
-        moveOptions: function(options) {
-            // allow routing in and through hostile rooms
-            if (_.isUndefined(options.allowHostile)) options.allowHostile = true;
-            return options;
-        }
-    },
-    withdrawing: {
-        name: `withdrawing-${mod.name}`,
-        isValidAction: function(creep) {
-            return false;
-        },
-    },
-};
-mod.selectStrategies = function(actionName) {
-    return [mod.strategies.defaultStrategy, mod.strategies[actionName]];
 };

@@ -14,7 +14,7 @@ mod.approach = function(creep){
                 delete creep.data.determinatedSpot;
             }
         }
-        creep.travelTo( targetPos, {range:0} );
+        creep.drive( targetPos, 0, 0, range );
     }
     return range;
 };
@@ -23,7 +23,7 @@ mod.run = function(creep) {
         creep.data.creepType='recycler';
         return;
     }
-    if( !creep.action || creep.action.name !== 'upgrading' ) Population.registerAction(creep, Creep.action.upgrading, creep.room.controller);
+    if( !creep.action ) Population.registerAction(creep, Creep.action.upgrading, creep.room.controller);
     if( !creep.data.determinatedSpot ) {
         let determineSpots = (ignoreSources=false) => {
             let spots = [];
@@ -108,15 +108,4 @@ mod.run = function(creep) {
             creep.upgradeController(creep.room.controller);
         }
     }
-};
-mod.strategies = {
-    defaultStrategy: {
-        name: `default-${mod.name}`,
-        moveOptions: function(options) {
-            return options || {};
-        }
-    }
-};
-mod.selectStrategies = function(actionName) {
-    return [mod.strategies.defaultStrategy, mod.strategies[actionName]];
 };
