@@ -60,10 +60,12 @@ let Action = function(actionName){
                 creep.handleError({errorCode: workResult, action: this, target: creep.target, range, creep});
                 return;
             }
-        }
-        if( creep.target ) {
-            range = creep.pos.getRangeTo(creep.target);
-            creep.drive( creep.target.pos, this.reachedRange, this.targetRange, range );
+            if (creep.target && range > this.reachedRange) {
+                // low CPU pathfinding for last few steps.
+                creep.move(creep.pos.getDirectionTo(creep.target));
+            }
+        } else if( creep.target ) {
+            creep.travelTo(creep.target, {range: this.targetRange});
         }
     };
     // order for the creep to execute when at target
@@ -87,9 +89,9 @@ let Action = function(actionName){
     // optionally predefine a fixed target
     this.assign = function(creep, target){
         if( target === undefined ) target = this.newTarget(creep);
-        if( target != null ) {
+        if( target && this.isAddableTarget(target, creep)) {
             if( DEBUG && TRACE ) trace('Action', {creepName:creep.name, assign:this.name, target:!target || target.name || target.id, Action:'assign'});
-            if( creep.action == null || creep.action.name != this.name || creep.target == null || creep.target.id != target.id || creep.target.name != target.name ) {
+            if( !creep.action || creep.action.name != this.name || !creep.target || creep.target.id !== target.id || creep.target.name != target.name ) {
                 Population.registerAction(creep, this, target);
                 this.onAssignment(creep, target);
             }
@@ -102,7 +104,10 @@ let Action = function(actionName){
     this.onAssignment = (creep, target) => {};
     // empty default strategy
     this.defaultStrategy = {
-        name: `default-${actionName}`
+        name: `default-${actionName}`,
+        moveOptions: function(options) {
+            return options || {};
+        }
     };
     // strategy accessor
     this.selectStrategies = function() {

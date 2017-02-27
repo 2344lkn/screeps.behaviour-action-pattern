@@ -1,0 +1,31 @@
+{
+  "ocs.internal": {
+    "reset": "upstream/dev",
+    "merge": [
+      "upstream/feature/healAlly",
+      "upstream/change/skRenewal",
+      "upstream/major/traveler",
+      "upstream/feature/remoteMinerHeal"
+    ]
+  },
+  "ocs.public": {
+    "reset": "upstream/dev",
+    "merge": [
+      "upstream/change/renewalForAll",
+      "upstream/feature/processPower",
+      "upstream/change/fleeHeal",
+      "upstream/change/travelHop",
+      "upstream/change/pioneerAnyRoom",
+      "upstream/change/smaterWorkerCount",
+      "upstream/major/traveler",
+      "upstream/change/noSelfTarget",
+      "upstream/fix/defendersTravel",
+      "upstream/change/overfillBucket",
+      "upstream/change/actionFeeding",
+      "upstream/fix/remoteHaulersStoring",
+      "upstream/Dasku-patch-3",
+      "upstream/feature/haulerRoundUp",
+      "upstream/bug/resourceUndefRcl"
+    ]
+  }
+}
