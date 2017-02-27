@@ -132,7 +132,7 @@ global.install = () => {
         Tower: load("tower"),
         Events: load('events'),
         Grafana: GRAFANA ? load('grafana') : undefined,
-        Visuals: ROOM_VISUALS && !Memory.CPU_CRITICAL ? load('visuals') : undefined,
+        Visuals: ROOM_VISUALS ? load('visuals') : undefined,
     });
     _.assign(global.Task, {
         guard: load("task.guard"),
@@ -152,7 +152,7 @@ global.install = () => {
         action: {
             attackController: load("creep.action.attackController"),
             avoiding: load("creep.action.avoiding"),
-            building: load("creep.action.building"), 
+            building: load("creep.action.building"),
             charging: load("creep.action.charging"),
             claiming: load("creep.action.claiming"),
             defending: load("creep.action.defending"),
@@ -228,9 +228,6 @@ global.install();
 let cpuAtFirstLoop;
 module.exports.loop = function () {
     const cpuAtLoop = Game.cpu.getUsed();
-    // let the cpu recover a bit above the threshold before disengaging to prevent thrashing
-    Memory.CPU_CRITICAL = Memory.CPU_CRITICAL ? Game.cpu.bucket < CRITICAL_BUCKET_LEVEL + CRITICAL_BUCKET_OVERFILL : Game.cpu.bucket < CRITICAL_BUCKET_LEVEL;
-
     if (!cpuAtFirstLoop) cpuAtFirstLoop = cpuAtLoop;
 
     // ensure required memory namespaces
@@ -242,9 +239,6 @@ module.exports.loop = function () {
     }
     if (Memory.debugTrace === undefined) {
         Memory.debugTrace = {error:true, no:{}};
-    }
-    if (Memory.cloaked === undefined) {
-        Memory.cloaked = {};
     }
 
     // ensure up to date parameters
@@ -292,9 +286,9 @@ module.exports.loop = function () {
     Population.cleanup();
     // custom cleanup
     if( global.mainInjection.cleanup ) global.mainInjection.cleanup();
-
-    if ( ROOM_VISUALS && !Memory.CPU_CRITICAL ) Visuals.run(); // At end to correctly display used CPU.
-
+	
+    if ( ROOM_VISUALS ) Visuals.run(); // At end to correctly display used CPU.
+    
     if ( GRAFANA && Game.time % GRAFANA_INTERVAL === 0 ) Grafana.run();
 
     Game.cacheTime = Game.time;
