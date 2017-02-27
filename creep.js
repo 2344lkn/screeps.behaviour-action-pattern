@@ -41,7 +41,7 @@ mod.extend = function(){
         if( !this.spawning ){
             if(!behaviour && this.data && this.data.creepType) {
                 behaviour = Creep.behaviour[this.data.creepType];
-                if ( Memory.CPU_CRITICAL && !CRITICAL_ROLES.includes(this.data.creepType) ) {
+                if ( Game.cpu.bucket < CRITICAL_BUCKET_LEVEL && !CRITICAL_ROLES.includes(this.data.creepType) ) {
                     return;
                 }
             }
@@ -97,7 +97,6 @@ mod.extend = function(){
             }
             if( this.flee ) {
                 this.fleeMove();
-                Creep.behaviour.ranger.heal(this);
                 if( SAY_ASSIGNMENT ) this.say(String.fromCharCode(10133), SAY_PUBLIC);
             }
         }
@@ -322,7 +321,9 @@ mod.extend = function(){
             let nearby = this.pos.findInRange(this.room.structures.repairable, DRIVE_BY_REPAIR_RANGE);
             if( nearby && nearby.length ){
                 if( DEBUG && TRACE ) trace('Creep', {creepName:this.name, Action:'repairing', Creep:'repairNearby'}, nearby[0].pos);
-                this.repair(nearby[0]);
+                if( this.repair(nearby[0]) === OK && this.carry.energy <= this.getActiveBodyparts(WORK) * REPAIR_POWER / REPAIR_COST ) {
+                    Creep.action.idle.assign(this);
+                }
             } else {
                 if( DEBUG && TRACE ) trace('Creep', {creepName:this.name, Action:'repairing', Creep:'repairNearby'}, 'none');
                 // enable remote haulers to build their own roads and containers
@@ -446,7 +447,7 @@ mod.extend = function(){
     Creep.prototype.customStrategy = function(actionName, behaviourName, taskName) {};
 };
 mod.execute = function(){
-    if ( DEBUG && Memory.CPU_CRITICAL ) logSystem('system',`${Game.time}: CPU Bucket level is critical (${Game.cpu.bucket}). Skipping non critical creep roles.`);
+    if ( DEBUG && Game.cpu.bucket < CRITICAL_BUCKET_LEVEL ) logSystem('system',`${Game.time}: CPU Bucket level is critical (${Game.cpu.bucket}). Skipping non critical creep roles.`);
     let run = creep => creep.run();
     _.forEach(Game.creeps, run);
 };

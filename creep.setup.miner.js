@@ -6,7 +6,7 @@ setup.default = {
     multiBody: [WORK, MOVE],
     minAbsEnergyAvailable: 500,
     minEnergyAvailable: 0.3,
-    maxMulti: 2,
+    maxMulti: 1,
     maxCount: room => room.sources.length
 };
 setup.low = {
