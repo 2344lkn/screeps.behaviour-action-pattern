@@ -73,7 +73,7 @@ setup.level8 = {
     multiBody: [WORK],
     minAbsEnergyAvailable: 300,
     minEnergyAvailable: 1,
-    maxMulti: CONTROLLER_MAX_UPGRADE_PER_TICK / UPGRADE_CONTROLLER_POWER,
+    maxMulti: 15,
     maxCount: room => setup.maxCount(room),
 };
 setup.RCL = {
