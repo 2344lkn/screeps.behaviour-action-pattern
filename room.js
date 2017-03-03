@@ -1975,14 +1975,15 @@ mod.extend = function(){
         let lastLookedIndex = this.memory.observer.lastLookedIndex || ROOMS.length; // if doesn't exist, default to array length as it's guaranteed to be > array.length - 1.
         let nextRoom;
         do { // look ma! my first ever do-while loop!
-            if (lastLookedIndex >= ROOMS.length - 1) {
+            if (lastLookedIndex > ROOMS.length - 1) {
                 nextRoom = ROOMS[0];
             }  else {
                 nextRoom = ROOMS[lastLookedIndex + 1];
             }
             lastLookedIndex = ROOMS.indexOf(nextRoom);
-            this.memory.observer.lastLookedIndex = lastLookedIndex;
         } while (Memory.observerSchedule.includes(nextRoom));
+        this.memory.observer.lastLookedIndex = lastLookedIndex;
+        Memory.observerSchedule.push(nextRoom);
         OBSERVER.observeRoom(nextRoom); // now we get to observe a room
     };
     Room.prototype.initObserverRooms = function() {
