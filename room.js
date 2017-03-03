@@ -1968,7 +1968,7 @@ mod.extend = function(){
         return ret;
     }
     Room.prototype.controlObserver = function() {
-        const OBSERVER = this.observer;
+        const OBSERVER = this.structures.observer;
         if (!OBSERVER) return;
         if (!this.memory.observer.rooms) this.initObserverRooms();
         const ROOMS = this.memory.observer.rooms;
