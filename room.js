@@ -1972,7 +1972,7 @@ mod.extend = function(){
         if (!OBSERVER) return;
         if (!this.memory.observer.rooms) this.initObserverRooms();
         const ROOMS = this.memory.observer.rooms;
-        let lastLookedIndex = this.memory.observer.lastLookedIndex || ROOMS.length; // if doesn't exist, default to array length as it's guaranteed to be > array.length - 1.
+        let lastLookedIndex = Number.isInteger(this.memory.observer.lastLookedIndex) ? this.memory.observer.lastLookedIndex : ROOMS.length;
         let nextRoom;
         do { // look ma! my first ever do-while loop!
             if (lastLookedIndex > ROOMS.length - 1) {
