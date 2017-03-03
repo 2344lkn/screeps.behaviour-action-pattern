@@ -1974,14 +1974,18 @@ mod.extend = function(){
         const ROOMS = this.memory.observer.rooms;
         let lastLookedIndex = Number.isInteger(this.memory.observer.lastLookedIndex) ? this.memory.observer.lastLookedIndex : ROOMS.length;
         let nextRoom;
+        let i = 0;
         do { // look ma! my first ever do-while loop!
-            if (lastLookedIndex > ROOMS.length - 1) {
+            if (lastLookedIndex >= ROOMS.length) {
                 nextRoom = ROOMS[0];
             }  else {
                 nextRoom = ROOMS[lastLookedIndex + 1];
             }
             lastLookedIndex = ROOMS.indexOf(nextRoom);
-        } while (Memory.observerSchedule.includes(nextRoom));
+            if (++i >= ROOMS.length) { // safety check - prevents an infinite loop
+                break;
+            }
+        } while (Memory.observerSchedule.includes(nextRoom) || nextRoom in Game.rooms);
         this.memory.observer.lastLookedIndex = lastLookedIndex;
         Memory.observerSchedule.push(nextRoom);
         OBSERVER.observeRoom(nextRoom); // now we get to observe a room
