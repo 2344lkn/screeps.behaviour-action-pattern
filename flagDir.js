@@ -163,7 +163,7 @@ mod.analyze = function(){
         if(!Game.flags[flagName]) {
             this.stale.push(flagName);
         }
-    }
+    };
     _.forEach(Memory.flags, findStaleFlags);
     return !!specialFlag;
 };
@@ -194,4 +194,23 @@ mod.specialFlag = function(create) {
 };
 mod.isSpecialFlag = function(object) {
     return object.name === '_OCS';
+};
+mod.flagType = function(flag) {
+    if (mod.isSpecialFlag(flag)) return 'specialFlag';
+    for (const primary in FLAG_COLOR) {
+        const obj = FLAG_COLOR[primary];
+        if (flag.color === obj.color) {
+            if (flag.secondaryColor === obj.secondaryColor) {
+                return primary + '.' + primary;
+            } else {
+                for (const secondary in obj) {
+                    if (flag.secondaryColor === obj[secondary].secondaryColor) {
+                        return primary + '.' + secondary;
+                    }
+                }
+            }
+        }
+    }
+    logError('Unknown flag type for flag ' + flag ? flag.name : 'undefined flag');
+    return 'undefined';
 };

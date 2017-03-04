@@ -35,13 +35,12 @@ mod.handleFlagFound = flag => {
 };
 // check if a new creep has to be spawned
 mod.checkForRequiredCreeps = (flag) => {
-    let spawnParamsHandler;
+    let spawnParams;
     if( flag.color == FLAG_COLOR.claim.mining.color && flag.secondaryColor == FLAG_COLOR.claim.mining.secondaryColor ) {
-        spawnParamsHandler = Task.mining.strategies.reserve.spawnParams(flag);
+        spawnParams = Task.mining.strategies.reserve.spawnParams(flag);
+    } else {
+        spawnParams = mod.strategies.defaultStrategy.spawnParams(flag);
     }
-    if( !spawnParamsHandler ) spawnParamsHandler = mod.strategies.defaultStrategy.spawnParams;
-
-    let spawnParams = spawnParamsHandler(flag);
 
     // get task memory
     let memory = Task.reserve.memory(flag);
