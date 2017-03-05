@@ -2104,21 +2104,26 @@ mod.extend = function(){
         return ret;
     }
     Room.prototype.controlObserver = function() {
-        const OBSERVER = this.observer;
+        const OBSERVER = this.structures.observer;
         if (!OBSERVER) return;
         if (!this.memory.observer.rooms) this.initObserverRooms();
         const ROOMS = this.memory.observer.rooms;
-        let lastLookedIndex = this.memory.observer.lastLookedIndex || ROOMS.length; // if doesn't exist, default to array length as it's guaranteed to be > array.length - 1.
+        let lastLookedIndex = Number.isInteger(this.memory.observer.lastLookedIndex) ? this.memory.observer.lastLookedIndex : ROOMS.length;
         let nextRoom;
+        let i = 0;
         do { // look ma! my first ever do-while loop!
-            if (lastLookedIndex >= ROOMS.length - 1) {
+            if (lastLookedIndex >= ROOMS.length) {
                 nextRoom = ROOMS[0];
             }  else {
                 nextRoom = ROOMS[lastLookedIndex + 1];
             }
             lastLookedIndex = ROOMS.indexOf(nextRoom);
-            this.memory.observer.lastLookedIndex = lastLookedIndex;
-        } while (Memory.observerSchedule.includes(nextRoom));
+            if (++i >= ROOMS.length) { // safety check - prevents an infinite loop
+                break;
+            }
+        } while (Memory.observerSchedule.includes(nextRoom) || nextRoom in Game.rooms);
+        this.memory.observer.lastLookedIndex = lastLookedIndex;
+        Memory.observerSchedule.push(nextRoom);
         OBSERVER.observeRoom(nextRoom); // now we get to observe a room
     };
     Room.prototype.initObserverRooms = function() {
@@ -2215,6 +2220,7 @@ mod.analyze = function(){
                 room.updateResourceOrders();
                 room.updateRoomOrders();
                 room.terminalBroker();
+                room.initObserverRooms(); // to re-evaluate rooms, in case parameters are changed
             }
             room.roadConstruction();
             room.linkDispatcher();
@@ -2306,15 +2312,15 @@ mod.calcCardinalDirection = function(roomName) {
 };
 mod.calcGlobalCoordinates = function(roomName, callBack) {
     if (!callBack) return null;
-	const parsed = /^[WE]([0-9]+)[NS]([0-9]+)$/.exec(roomName);
-	const x = +parsed[1];
-	const y = +parsed[2];
-	return callBack(x, y);
+    const parsed = /^[WE]([0-9]+)[NS]([0-9]+)$/.exec(roomName);
+    const x = +parsed[1];
+    const y = +parsed[2];
+    return callBack(x, y);
 };
 mod.calcCoordinates = function(roomName, callBack){
     if (!callBack) return null;
     return Room.calcGlobalCoordinates(roomName, (x, y) => {
-    	return callBack(x % 10, y % 10);
+        return callBack(x % 10, y % 10);
     });
 };
 mod.isCenterRoom = function(roomName){
