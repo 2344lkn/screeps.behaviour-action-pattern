@@ -25,11 +25,15 @@ mod.nextAction = function(creep){
         priority = [
             Creep.action.uncharging,
             Creep.action.picking];
-            if( creep.data.lastAction !== 'storing' || !creep.room.storage || creep.data.lastTarget !== creep.room.storage.id ) {
-                priority.push(Creep.action.withdrawing);
-            }
-            priority.push(Creep.action.reallocating);
-            priority.push(Creep.action.idle);
+        let potentialFuelTarget = Creep.action.fueling.newTarget(creep);
+        let potentialChargeTarget = Creep.action.charging.newTarget(creep);
+        if( creep.data.lastAction !== 'storing' || !creep.room.storage || creep.data.lastTarget !== creep.room.storage.id ||
+            creep.room.relativeEnergyAvailable < 1.0 || potentialFuelTarget !== null ||
+                ( potentialChargeTarget && ( (potentialChargeTarget.structureType === STRUCTURE_LINK) ? true : ( potentialChargeTarget.storeCapacity - potentialChargeTarget.sum ) >  Math.min( creep.carryCapacity, 500 ) ) ) ) {
+            priority.push(Creep.action.withdrawing);
+        }
+        priority.push(Creep.action.reallocating);
+        priority.push(Creep.action.idle);
     }
     else {
         priority = [

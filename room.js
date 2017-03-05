@@ -1684,7 +1684,7 @@ mod.extend = function(){
 
             if (master.runReaction(slave_a, slave_b) == OK) {
                 data.reactionAmount -= 5;
-                console.log(master,"FU - SION - HA!",data.reactionAmount,compound,"remaining on order");
+                if( DEBUG && TRACE ) trace("Room", { roomName: this.name, actionName: "processLabs", labId: master.id, resourceType: compound, amountRemaining: data.reactionAmount } );
                 if (data.reactionAmount <= 0) {
                     this.cancelReactionOrder(master.id);
                 }
