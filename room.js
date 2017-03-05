@@ -1091,7 +1091,7 @@ mod.extend = function(){
             this.memory.container.push({
                 id: cont.id,
                 source: (source.length > 0),
-                controller: ( cont.pos.getRangeTo(this.controller) < 4 ),
+                controller: !!( this.my && cont.pos.getRangeTo(this.controller) < 4 ),
                 mineral: (mineral.length > 0),
             });
             let assignContainer = s => s.memory.container = cont.id;
